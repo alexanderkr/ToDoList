@@ -1,24 +1,31 @@
 var converter = new Showdown.converter();
 
 var ToDoItem = React.createClass({
-        render: function() {
-            //var rawMarkup = converter.makeHtml(this.props.children.toString());
-            var rawMarkup = this.props.children.toString();
-            return (
-                <tr>
-                    <td>{this.props.author}</td>
-                    <td>{rawMarkup}</td>
-                    <td><input type="checkbox"/></td>
-                </tr>
-            );
-        }
+    handleDelete: function() {
+        this.props.onDelete();
+    },
+    render: function() {
+        //var rawMarkup = converter.makeHtml(this.props.children.toString());
+        var rawMarkup = this.props.children.toString();
+        return (
+            <tr>
+                <td>{this.props.author}</td>
+                <td>{rawMarkup}</td>
+                <td><input type="button" onClick={this.handleDelete} className="btn btn-sm btn-default" value="Delete"/></td>
+            </tr>
+        );
+    }
 });
 
 var CommentList = React.createClass({
+        handleDeletion: function() {
+            this.props.onDeleteItem();
+        },
         render: function () {
+            var self = this;
             var todoItems = this.props.data.map(function (comment) {
                 return (
-                    <ToDoItem author={comment.author}>
+                    <ToDoItem author={comment.author} onDelete={self.handleDeletion} >
                         {comment.text}
                     </ToDoItem>
                 );
@@ -26,10 +33,12 @@ var CommentList = React.createClass({
 
             return (
                 <div className="panel panel-default">
-                    <div className="panel-heading">Panel heading</div>
+                    <div className="panel-heading">Open Items</div>
 
                     <table className="table">
-                        {todoItems}
+                        <tbody>
+                            {todoItems}
+                        </tbody>
                     </table>
                 </div>
             );
@@ -80,16 +89,19 @@ var CommentBox = React.createClass({
             }.bind(this)
         });
     },
-    handleCommentSubmit: function(comment) {
+    handleItemSubmit: function(comment) {
         var newData = this.state.data;
         newData.push(comment);
         this.setState({data: newData});
     },
+    handleItemDelete: function () {
+        console.log('delete')
+    },
     render: function() {
         return (
             <div className="commentBox">
-                <CommentList data={this.state.data}/>
-                <CommentForm onCommentSubmit={this.handleCommentSubmit}/>
+                <CommentList data={this.state.data} onDeleteItem={this.handleItemDelete}/>
+                <CommentForm onCommentSubmit={this.handleItemSubmit}/>
             </div>
         );
     }
