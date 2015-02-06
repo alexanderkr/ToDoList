@@ -31,32 +31,60 @@ var CommentList = React.createClass({
 });
 
 var CommentForm = React.createClass({
+    handleSubmit: function(e) {
+        e.preventDefault();
+        var author = this.refs.author.getDOMNode().value.trim();
+        var text = this.refs.text.getDOMNode().value.trim();
+        if (!text || !author) {
+            return;
+        }
+        this.props.onCommentSubmit({author: author, text: text});
+        this.refs.author.getDOMNode().value = '';
+        this.refs.text.getDOMNode().value = '';
+    },
     render: function() {
         return (
-            <div className="commentForm">
-                Hello, world! I am a CommentForm.
-            </div>
+            <form className="commentForm" onSubmit={this.handleSubmit}>
+                <input type="text" placeholder="Your name" ref="author"/>
+                <input type="text" placeholder="Say something..." ref="text"/>
+                <input type="submit" value="Post" />
+            </form>
         );
     }
 });
 var CommentBox = React.createClass({
+    getInitialState: function() {
+        return {data: []};
+    },
+    componentDidMount: function() {
+        $.ajax({
+            url: this.props.url,
+            dataType: 'json',
+            success: function(data) {
+                this.setState({data: data});
+            }.bind(this),
+            error: function(xhr, status, err) {
+                console.error(this.props.url, status, err.toString());
+            }.bind(this)
+        });
+    },
+    handleCommentSubmit: function(comment) {
+        var newData = this.state.data;
+        newData.push(comment);
+        this.setState({data: newData});
+    },
     render: function() {
         return (
             <div className="commentBox">
                 Hello, world! I am a CommentBox.
-                <CommentList data={this.props.data}/>
-                <CommentForm />
+                <CommentList data={this.state.data}/>
+                <CommentForm onCommentSubmit={this.handleCommentSubmit}/>
             </div>
         );
     }
 });
 
-var data = [
-    {author: "Pete Hunt", text: "This is one comment"},
-    {author: "Jordan Walke", text: "This is *another* comment"}
-];
-
 React.render(
-    <CommentBox data={data}/>,
+    <CommentBox url="comments.json"/>,
     document.getElementById('content')
 );
