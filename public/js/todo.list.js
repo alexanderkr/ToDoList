@@ -1,30 +1,36 @@
 var converter = new Showdown.converter();
 
-var Comment = React.createClass({
+var ToDoItem = React.createClass({
         render: function() {
-            var rawMarkup = converter.makeHtml(this.props.children.toString());
+            //var rawMarkup = converter.makeHtml(this.props.children.toString());
+            var rawMarkup = this.props.children.toString();
             return (
-                <div className="comment">
-                    <h2 className="commentAuthor">{this.props.author}</h2>
-                    <span dangerouslySetInnerHTML={{__html: rawMarkup}} />
-                </div>
+                <tr>
+                    <td>{this.props.author}</td>
+                    <td>{rawMarkup}</td>
+                    <td><input type="checkbox"/></td>
+                </tr>
             );
         }
 });
 
 var CommentList = React.createClass({
         render: function () {
-            var commentNodes = this.props.data.map(function (comment) {
+            var todoItems = this.props.data.map(function (comment) {
                 return (
-                    <Comment author={comment.author}>
+                    <ToDoItem author={comment.author}>
                         {comment.text}
-                    </Comment>
+                    </ToDoItem>
                 );
             });
 
             return (
-                <div className="commentList">
-                    {commentNodes}
+                <div className="panel panel-default">
+                    <div className="panel-heading">Panel heading</div>
+
+                    <table className="table">
+                        {todoItems}
+                    </table>
                 </div>
             );
         }
@@ -44,10 +50,16 @@ var CommentForm = React.createClass({
     },
     render: function() {
         return (
-            <form className="commentForm" onSubmit={this.handleSubmit}>
-                <input type="text" placeholder="Your name" ref="author"/>
-                <input type="text" placeholder="Say something..." ref="text"/>
-                <input type="submit" value="Post" />
+            <form className="form-inline" onSubmit={this.handleSubmit}>
+                <div className="form-group">
+                    <label className="sr-only" for="exampleInputl3">Email address</label>
+                    <input id="exampleInputl3" type="text" className="form-control" placeholder="Your name" ref="author"/>
+                </div>
+                <div className="form-group">
+                    <label className="sr-only" for="exampleInputl4">Email address</label>
+                    <input id="exampleInputl4" type="text" className="form-control" placeholder="Say something..." ref="text"/>
+                </div>
+                <button type="submit" className="btn btn-default">Create Item</button>
             </form>
         );
     }
@@ -76,7 +88,6 @@ var CommentBox = React.createClass({
     render: function() {
         return (
             <div className="commentBox">
-                Hello, world! I am a CommentBox.
                 <CommentList data={this.state.data}/>
                 <CommentForm onCommentSubmit={this.handleCommentSubmit}/>
             </div>
